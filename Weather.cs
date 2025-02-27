@@ -1,6 +1,6 @@
 namespace RestaurantApi
 {
-    public class WeatherForecast
+    public class Weather
     {
         public DateOnly Date { get; set; }
 

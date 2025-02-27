@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using RestaurantApi.WeatherForecast.Commands;
+using RestaurantApi.WeatherForecast.Queries;
+using RestaurantApi.WeatherForecast.Services;
 
 namespace RestaurantApi.Controllers
 {
@@ -6,28 +9,39 @@ namespace RestaurantApi.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IWeatherForecastService _service;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(
+            ILogger<WeatherForecastController> logger,
+            IWeatherForecastService service)
         {
             _logger = logger;
+            _service = service;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        [HttpGet]
+        public IEnumerable<Weather> Get([FromQuery]WeatherForecastQuery weatherForecastQuery)
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var result = _service.Get(weatherForecastQuery);
+            return result;
+        }
+
+        [HttpPost("generate/{numberOfValues}")]
+        public IActionResult Post([FromQuery]int numberOfValues, [FromBody] WeatherForecastCommand weatherForecastCommand)
+        {
+            if (numberOfValues <= 0)
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                return BadRequest("Number of values must be greater than 0");
+            }
+
+            if (weatherForecastCommand.MinTemperature > weatherForecastCommand.MaxTemperature)
+            {
+                return BadRequest("Min temperature must be less than max temperature");
+            }
+
+            var result = _service.Post(numberOfValues, weatherForecastCommand);
+            return Ok(result);
         }
     }
 }
