@@ -23,24 +23,33 @@ namespace RestaurantApi.Controllers
         [HttpGet]
         public IEnumerable<Weather> Get([FromQuery]WeatherForecastQuery weatherForecastQuery)
         {
-            var result = _service.Get(weatherForecastQuery);
+            var result = _service.Get(
+                weatherForecastQuery.CountOfElements,
+                weatherForecastQuery.MinTemperature,
+                weatherForecastQuery.MaxTemperature
+                );
+
             return result;
         }
 
-        [HttpPost("generate/{numberOfValues}")]
-        public IActionResult Post([FromQuery]int numberOfValues, [FromBody] WeatherForecastCommand weatherForecastCommand)
+        [HttpPost("generate")]
+        public IActionResult Post([FromQuery]int numberOfValues, [FromBody] WeatherForecastRequest weatherForecastRequest)
         {
             if (numberOfValues <= 0)
             {
                 return BadRequest("Number of values must be greater than 0");
             }
 
-            if (weatherForecastCommand.MinTemperature > weatherForecastCommand.MaxTemperature)
+            if (weatherForecastRequest.MinTemperature > weatherForecastRequest.MaxTemperature)
             {
                 return BadRequest("Min temperature must be less than max temperature");
             }
 
-            var result = _service.Post(numberOfValues, weatherForecastCommand);
+            var result = _service.Get(
+                numberOfValues,
+                weatherForecastRequest.MinTemperature,
+                weatherForecastRequest.MaxTemperature);
+            //var result = _service.Post(numberOfValues, weatherForecastRequest);
             return Ok(result);
         }
     }

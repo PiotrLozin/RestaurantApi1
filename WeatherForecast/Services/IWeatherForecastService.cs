@@ -6,8 +6,8 @@ namespace RestaurantApi.WeatherForecast.Services
 {
     public interface IWeatherForecastService
     {
-        public IEnumerable<Weather> Get(WeatherForecastQuery weatherForecastQuery);
+        public IEnumerable<Weather> Get(int count, int minTemperature, int maxTemperature);
 
-        public IActionResult Post(int numberOfValues, WeatherForecastCommand weatherForecastCommand);
+        public IActionResult Post(int numberOfValues, WeatherForecastRequest weatherForecastCommand);
     }
 }
