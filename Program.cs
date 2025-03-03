@@ -1,15 +1,13 @@
 using RestaurantApi;
 using RestaurantApi.Entities;
-using RestaurantApi.WeatherForecast.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Tworzy obiekt za ka¿dym razem, gdy jest potrzebny - czyli nawet kilka razy na jedno zapytanie
-builder.Services.AddTransient<IWeatherForecastService, WeatherForecastService>();
 builder.Services.AddTransient<RestaurantSeeder>();
 builder.Services.AddDbContext<RestaurantDbContext>();
-
+builder.Services.AddAutoMapper(typeof(RestaurantMappingProfile).Assembly);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
