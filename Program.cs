@@ -1,15 +1,19 @@
+using NLog.Web;
 using RestaurantApi;
 using RestaurantApi.Entities;
+using RestaurantApi.Middleware;
 using RestaurantApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseNLog();
 // Add services to the container.
 // Tworzy obiekt za ka¿dym razem, gdy jest potrzebny - czyli nawet kilka razy na jedno zapytanie
 builder.Services.AddTransient<RestaurantSeeder>();
 builder.Services.AddDbContext<RestaurantDbContext>();
 builder.Services.AddAutoMapper(typeof(RestaurantMappingProfile).Assembly);
 builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -31,6 +35,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

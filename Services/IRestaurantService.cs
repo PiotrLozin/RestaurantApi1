@@ -5,9 +5,9 @@ namespace RestaurantApi.Services
     public interface IRestaurantService
     {
         int Create(CreateRestaurantDto dto);
-        bool Delete(int id);
+        void Delete(int id);
         IEnumerable<RestaurantDto> GetAll();
         RestaurantDto GetById(int id);
-        bool Update(int id, EditRestaurantDto dto);
+        void Update(int id, EditRestaurantDto dto);
     }
 }
