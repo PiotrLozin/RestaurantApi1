@@ -1,9 +1,11 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using NLog.Web;
 using RestaurantApi;
+using RestaurantApi.Authorization;
 using RestaurantApi.Entities;
 using RestaurantApi.Middleware;
 using RestaurantApi.Models;
@@ -36,7 +38,14 @@ builder.Services.AddAuthentication(option =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
     };
 });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("HasNationality", builder => builder.RequireClaim("Nationality"));
+    options.AddPolicy("AtLeast18", builder => builder.AddRequirements(new MinimumAgeRequirement(18)));
+});
 
+builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
 builder.Services.AddTransient<RestaurantSeeder>();
 builder.Services.AddDbContext<RestaurantDbContext>();
 builder.Services.AddAutoMapper(typeof(RestaurantMappingProfile).Assembly);
@@ -47,6 +56,8 @@ builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<RequestTimeMiddleware>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
