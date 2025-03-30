@@ -67,8 +67,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var allowedOrigin = builder.Configuration["AllowedOrigins"];
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontEndClient", builder =>
+        builder.AllowAnyMethod()
+            .AllowAnyHeader()
+            .WithOrigins(allowedOrigin));
+});
+
 var app = builder.Build();
 
+app.UseCors("FrontEndClient");
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

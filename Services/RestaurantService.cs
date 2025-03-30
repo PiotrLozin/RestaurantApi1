@@ -55,9 +55,9 @@ namespace RestaurantApi.Services
                 .Include(r => r.Address)
                 .Include(r => r.Dishes)
                 .Where(
-                    r => restaurantQuery.SearchPhrase == null || (r.Name.ToLower().Contains(restaurantQuery.SearchPhrase.ToLower())
-                    || r.Description.ToLower().Contains(restaurantQuery.SearchPhrase.ToLower())))
-                .ToList();
+                    r => restaurantQuery.SearchPhrase == null
+                    || (r.Name.ToLower().Contains(restaurantQuery.SearchPhrase.ToLower())
+                    || r.Description.ToLower().Contains(restaurantQuery.SearchPhrase.ToLower())));
 
             if (!string.IsNullOrEmpty(restaurantQuery.SortBy))
             {
@@ -71,8 +71,8 @@ namespace RestaurantApi.Services
                 var selectedColum = columnsSelectors[restaurantQuery.SortBy];
 
                 baseQuery = restaurantQuery.SortDirection == SortDirection.ASC ?
-                    baseQuery.OrderBy(r => r.Name).ToList()
-                    : baseQuery.OrderByDescending(r => r.Name).ToList();
+                    baseQuery.OrderBy(selectedColum)
+                    : baseQuery.OrderByDescending(selectedColum);
             }
 
             var restaurants = baseQuery
@@ -80,7 +80,7 @@ namespace RestaurantApi.Services
                 .Take(restaurantQuery.PageSize)
                 .ToList();
 
-            var totalItemsCount = baseQuery.Count;
+            var totalItemsCount = baseQuery.Count();
             var restaurantDtos = _mapper.Map<List<RestaurantDto>>(restaurants);
             var result = new PagedResult<RestaurantDto>(restaurantDtos, totalItemsCount, restaurantQuery.PageSize, restaurantQuery.PageNumber);
             return result;
