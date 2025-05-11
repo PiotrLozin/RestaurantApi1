@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using RestaurantApi.Models;
 
 namespace RestaurantApi.Controllers
 {
-    [Route("file")]
+    [Route("api/file")]
     // [Authorize]
     public class FileController : ControllerBase
     {
@@ -31,8 +32,10 @@ namespace RestaurantApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult Upload([FromForm] IFormFile file)
+        public ActionResult Upload([FromForm] FileUploadDto dto)
         {
+            var file = dto.File;
+
             if (file != null && file.Length > 0)
             {
                 var rootPath = Directory.GetCurrentDirectory();
